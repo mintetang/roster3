@@ -764,7 +764,7 @@ function cleanSelectedClass()
     newatt.splice(indexToDel, 1);
     localStorage.setItem('attHis', 
           JSON.stringify(newatt));
-    alert(`{selectedClass}已刪除！`);
+    alert(`${selectedClass}已刪除！`);
     //refresh
     location.reload();
 	//localStorage.clear();
