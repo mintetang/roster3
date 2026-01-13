@@ -907,11 +907,11 @@ function initGoogleDriveAuth() {
   }
 
   // Bind buttons safely
-  const authBtn = document.getElementById("authorize_button");
+  /*const authBtn = document.getElementById("authorize_button");
   if (authBtn) {
     authBtn.addEventListener("click", handleAuthClick);
-  }
-
+  }*/
+  handleAuthClick();
   // Load GAPI client
   gapi.load("client", async () => {
     await gapi.client.init({
