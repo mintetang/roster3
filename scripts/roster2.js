@@ -234,8 +234,10 @@ function submitAttendance() {
         console.error('Selected class is not valid.');
         return;
     }
-
-    showAttendanceResult(selectedClass);//remove below list 0113
+    //add 0113 to show result after submit
+    showAttendanceResult(selectedClass);
+    document.getElementById("resultSection")
+            .scrollIntoView({ behavior: "smooth" });//remove below list 0113
 /*    const studentsList =
         document.getElementById('studentsList');
 
