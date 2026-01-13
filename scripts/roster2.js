@@ -235,9 +235,9 @@ function submitAttendance() {
         return;
     }
 
-    const studentsList =
+/*    const studentsList =
         document.getElementById('studentsList');
-/*
+
     // Check if attendance is already submitted 
     // for the selected class
     const isAttendanceSubmitted =
@@ -256,9 +256,9 @@ function submitAttendance() {
         document.getElementById('resultSection').
             style.display = 'none';
     }
-            */ //remove hide list 0113
+            
     // Clear the student list and reset the form
-    studentsList.innerHTML = '';
+    studentsList.innerHTML = '';*/ //remove hide list 0113
 }
 
 function isAttendanceSubmittedForClass(selectedClass) {
