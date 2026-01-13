@@ -169,19 +169,19 @@ function std(a, b) {
     `;
 
     // Create ONE toggle button
-    const toggleButton = createButton('出席', 'present', () => {
+    const toggleButton = createButton('☑️', 'present', () => {
         const currentStatus = toggleButton.dataset.status;
 
         if (currentStatus === 'reset') {
             // Change to present
             markAttendance('present', listItem, selectedClass);
-            toggleButton.textContent = '重設';
+            toggleButton.textContent = '✅';
             toggleButton.className = 'reset';
             toggleButton.dataset.status = 'present';
         } else {
             // Change to reset
             markAttendance('reset', listItem, selectedClass);
-            toggleButton.textContent = '出席';
+            toggleButton.textContent = '☑️';
             toggleButton.className = 'present';
             toggleButton.dataset.status = 'reset';
         }
@@ -535,19 +535,19 @@ function showStudentsList() {
 
         // Create ONE toggle button
         const toggleButton = createButton(
-            initialStatus === 'present' ? '重設' : '出席',
+            initialStatus === 'present' ? '✅' : '☑️',
             initialStatus === 'present' ? 'reset' : 'present',
             () => {
                 const currentStatus = toggleButton.dataset.status;
 
                 if (currentStatus === 'reset') {
                     markAttendance('present', listItem, selectedClass);
-                    toggleButton.textContent = '重設';
+                    toggleButton.textContent = '✅';
                     toggleButton.className = 'reset';
                     toggleButton.dataset.status = 'present';
                 } else {
                     markAttendance('reset', listItem, selectedClass);
-                    toggleButton.textContent = '出席';
+                    toggleButton.textContent = '☑️';
                     toggleButton.className = 'present';
                     toggleButton.dataset.status = 'reset';
                 }
