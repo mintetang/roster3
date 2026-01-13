@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded",
     function () {
         populateClasses();
         showStudentsList();
+        initGoogleDriveAuth();
     });
 
 function showAddStudentOrgForm() {
@@ -881,37 +882,57 @@ function sleep(ms) {
 
 // for Google Output to drive
 
+
+// ===== Google config =====
 const CLIENT_ID =
   "273160542369-ttt03gmv0iio70vek53dqrqcfs9rt1a6.apps.googleusercontent.com";
-const API_KEY = "AIzaSyDZkfoh01VUEwX_uK3xn3jVvMLssdPCqoo";
+
+const API_KEY =
+  "AIzaSyDZkfoh01VUEwX_uK3xn3jVvMLssdPCqoo";
+
 const SCOPES = "https://www.googleapis.com/auth/drive.file";
 const DISCOVERY_DOC =
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
 
+// ===== State =====
 let tokenClient;
 let gapiInited = false;
 let gisInited = false;
 
-document.getElementById("authorize_button").onclick = handleAuthClick;
-//document.getElementById("upload_button").onclick = uploadToDrive;
+function initGoogleDriveAuth() {
+  // Wait until Google APIs are loaded
+  if (!window.gapi || !window.google?.accounts) {
+    setTimeout(initGoogleDriveAuth, 100);
+    return;
+  }
 
-// Load GAPI client
-gapi.load("client", async () => {
-  await gapi.client.init({ apiKey: API_KEY, discoveryDocs: [DISCOVERY_DOC] });
-  gapiInited = true;
-  maybeEnableButtons();
-});
+  // Bind buttons safely
+  const authBtn = document.getElementById("authorize_button");
+  if (authBtn) {
+    authBtn.addEventListener("click", handleAuthClick);
+  }
 
-// Initialize Google Identity Services
-window.onload = () => {
+  // Load GAPI client
+  gapi.load("client", async () => {
+    await gapi.client.init({
+      apiKey: API_KEY,
+      discoveryDocs: [DISCOVERY_DOC],
+    });
+    gapiInited = true;
+    maybeEnableButtons();
+  });
+
+  // Initialize Google Identity Services
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
-    callback: "", // Set later
+    callback: "", // set later
   });
+
   gisInited = true;
   maybeEnableButtons();
-};
+}
+
 
 //make button dimmed or blink after clicked
 /*document
