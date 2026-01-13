@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded",
     function () {
         populateClasses();
         showStudentsList();
-        initGoogleDriveAuth();
     });
 
 function showAddStudentOrgForm() {
@@ -898,6 +897,7 @@ const DISCOVERY_DOC =
 let tokenClient;
 let gapiInited = false;
 let gisInited = false;
+initGoogleDriveAuth();
 
 function initGoogleDriveAuth() {
   // Wait until Google APIs are loaded
@@ -932,7 +932,6 @@ function initGoogleDriveAuth() {
   gisInited = true;
   maybeEnableButtons();
 }
-
 
 //make button dimmed or blink after clicked
 /*document
