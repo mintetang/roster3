@@ -922,7 +922,7 @@ function initGoogleDriveAuth() {
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
-    callback: handleTokenResponse,
+    callback: "", // defined later"",
   });
 
   gisInited = true;
