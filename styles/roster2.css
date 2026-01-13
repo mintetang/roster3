@@ -142,6 +142,10 @@ button.reset {
     margin: 5px 10px;
 }
 
+.clicked {
+  background-color: #4caf50;
+  color: white;
+}
 
 button#exlocal {
     background-color: #1a8b4f;

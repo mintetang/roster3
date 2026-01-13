@@ -928,7 +928,10 @@ function initGoogleDriveAuth() {
   gisInited = true;
   maybeEnableButtons();
 }
-
+document.getElementById("authorize_button")
+  .addEventListener("click", function () {
+    this.classList.toggle("clicked");
+  });
 //make button dimmed or blink after clicked
 /*document
   .getElementById("authorize_button")
