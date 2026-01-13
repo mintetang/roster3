@@ -118,8 +118,8 @@ function readOrg() {
 
 async function addOrg() {
     const requestURL =
-        "https://roster2.wasmer.app/scripts/nameroll1.json";
-        //"https://mintetang.github.io/web-projects/test-site/scripts/nameroll1.json";
+        //"https://roster2.wasmer.app/scripts/nameroll1.json";
+        "https://mintetang.github.io/roster3/scripts/nameroll1.json";
     const request = new Request(requestURL);
     const response = await fetch(request);
     const rData = await response.json();
@@ -172,22 +172,14 @@ function std(a, b) {
         </strong>
         ${newStudentRoll}`;
 
-    const absentButton =
-        createButton('缺席', 'absent',
-            () => markAttendance('absent', listItem, selectedClass));
     const presentButton =
         createButton('出席', 'present',
             () => markAttendance('present', listItem, selectedClass));
-    const leaveButton =
-        createButton('請假', 'leave',
-            () => markAttendance('leave', listItem, selectedClass));
     const resetButton =
         createButton('重設', 'reset',
             () => markAttendance('reset', listItem, selectedClass));
 
-    //listItem.appendChild(absentButton);
     listItem.appendChild(presentButton);
-    //listItem.appendChild(leaveButton);
     listItem.appendChild(resetButton); //jt 0928 night
     studentsList.appendChild(listItem);
     saveStudentsList(selectedClass);
@@ -245,7 +237,7 @@ function submitAttendance() {
 
     const studentsList =
         document.getElementById('studentsList');
-
+/*
     // Check if attendance is already submitted 
     // for the selected class
     const isAttendanceSubmitted =
@@ -264,6 +256,7 @@ function submitAttendance() {
         document.getElementById('resultSection').
             style.display = 'none';
     }
+            */ //remove hide list 0113
     // Clear the student list and reset the form
     studentsList.innerHTML = '';
 }
@@ -302,8 +295,6 @@ function showAttendanceResult(selectedClass) {
         filter(record => record.status === 'present').length;
     const totalAbsent = filteredAttendanceData.
         filter(record => record.status !== 'present').length;
-    const totalLeave = filteredAttendanceData.
-        filter(record => record.status === 'leave').length;
     const totalReset = filteredAttendanceData.
         filter(record => record.status === 'reset').length; //jt 1002
 
@@ -529,12 +520,12 @@ function showStudentsList() {
             </strong>
             ${student.rollNumber}`;
 
-        const absentButton = createButton('缺席', 'absent', 
-            () => markAttendance('absent', listItem, selectedClass));
+        //const absentButton = createButton('缺席', 'absent', 
+        //    () => markAttendance('absent', listItem, selectedClass));
         const presentButton = createButton('出席', 'present', 
             () => markAttendance('present', listItem, selectedClass));
-        const leaveButton = createButton('請假', 'leave', 
-            () => markAttendance('leave', listItem, selectedClass));
+        //const leaveButton = createButton('請假', 'leave', 
+        //    () => markAttendance('leave', listItem, selectedClass));
         const resetButton =
         createButton('重設', 'reset',
             () => markAttendance('reset', listItem, selectedClass));
