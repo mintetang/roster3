@@ -900,19 +900,16 @@ let gisInited = false;
 initGoogleDriveAuth();
 
 function initGoogleDriveAuth() {
-  // Wait until Google APIs are loaded
   if (!window.gapi || !window.google?.accounts) {
     setTimeout(initGoogleDriveAuth, 100);
     return;
   }
 
-  // Bind buttons safely
-  /*const authBtn = document.getElementById("authorize_button");
+  const authBtn = document.getElementById("authorize_button");
   if (authBtn) {
-    authBtn.addEventListener("click", handleAuthClick);
-  }*/
-  handleAuthClick();
-  // Load GAPI client
+    authBtn.onclick = handleAuthClick;
+  }
+
   gapi.load("client", async () => {
     await gapi.client.init({
       apiKey: API_KEY,
@@ -922,11 +919,10 @@ function initGoogleDriveAuth() {
     maybeEnableButtons();
   });
 
-  // Initialize Google Identity Services
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
-    callback: "", // set later
+    callback: handleTokenResponse,
   });
 
   gisInited = true;
@@ -958,12 +954,16 @@ function maybeEnableButtons() {
 }
 
 function handleAuthClick() {
-  tokenClient.callback = async (resp) => {
-    if (resp.error) throw resp;
-    document.getElementById("upload_button").disabled = false;
-  };
-  tokenClient.requestAccessToken({ prompt: "consent" });
-}
+    tokenClient.requestAccessToken({ prompt: "consent" });
+    }
+
+    // Try silent auth once user interacts
+    document.addEventListener("click", () => {
+    tokenClient.requestAccessToken({ prompt: "" });
+    }, { once: true });
+
+// Fallback button
+document.getElementById("authorize_button").onclick = handleAuthClick;
 
 //declaire fileId to set in upload and use in googleIn
 
