@@ -728,9 +728,9 @@ function getSavedColor(selectedClass, rollNumber) {
 
 function cleanSelectedClass()
     {
-    const reCheck = prompt('！！！請輸入"27299580"來確認刪除目前的日期出席記錄，確認後"無法回復"！！！');
+    const reCheck = prompt('！！！請輸入"YES"來確認刪除目前的日期出席記錄，確認後"無法回復"！！！');
     //console.log(reCheck); 
-    if (reCheck === '27299580') {
+    if (reCheck === 'YES') {
   // Perform actions for cancellation, e.g., stop further processing
 
     const classSelector = 
@@ -764,7 +764,7 @@ function cleanSelectedClass()
     newatt.splice(indexToDel, 1);
     localStorage.setItem('attHis', 
           JSON.stringify(newatt));
-
+    alert(`{selectedClass}已刪除！`);
     //refresh
     location.reload();
 	//localStorage.clear();
