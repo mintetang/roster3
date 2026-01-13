@@ -156,37 +156,48 @@ function addStudent() {
 function std(a, b) {
     const newStudentName = a;
     const newStudentRoll = b;
-    // Add the new student to the list
-    const classSelector = document.
-        getElementById('classSelector');
-    const selectedClass = classSelector.
-        options[classSelector.selectedIndex].value;
-    const studentsList = document.
-        getElementById('studentsList');
+
+    const classSelector = document.getElementById('classSelector');
+    const selectedClass = classSelector.options[classSelector.selectedIndex].value;
+    const studentsList = document.getElementById('studentsList');
 
     const listItem = document.createElement('li');
     listItem.setAttribute('data-roll-number', newStudentRoll);
-    listItem.innerHTML =
-        `<strong>
-            ${newStudentName}
-        </strong>
-        ${newStudentRoll}`;
 
-    const presentButton =
-        createButton('出席', 'present',
-            () => markAttendance('present', listItem, selectedClass));
-    const resetButton =
-        createButton('重設', 'reset',
-            () => markAttendance('reset', listItem, selectedClass));
+    listItem.innerHTML = `
+        <strong>${newStudentName}</strong> ${newStudentRoll}
+    `;
 
-    listItem.appendChild(presentButton);
-    listItem.appendChild(resetButton); //jt 0928 night
+    // Create ONE toggle button
+    const toggleButton = createButton('出席', 'present', () => {
+        const currentStatus = toggleButton.dataset.status;
+
+        if (currentStatus === 'reset') {
+            // Change to present
+            markAttendance('present', listItem, selectedClass);
+            toggleButton.textContent = '重設';
+            toggleButton.className = 'reset';
+            toggleButton.dataset.status = 'present';
+        } else {
+            // Change to reset
+            markAttendance('reset', listItem, selectedClass);
+            toggleButton.textContent = '出席';
+            toggleButton.className = 'present';
+            toggleButton.dataset.status = 'reset';
+        }
+    });
+
+    // Initial state
+    toggleButton.dataset.status = 'reset';
+
+    listItem.appendChild(toggleButton);
     studentsList.appendChild(listItem);
+
     saveStudentsList(selectedClass);
-    // Update the attendance record for the specific student
     updateAttendanceRecord(newStudentName, selectedClass, 'reset');
     closePopup();
 }
+
 
 function addClass() {
 	//jt 0927
@@ -499,52 +510,60 @@ function populateClasses() {
 }
 
 function showStudentsList() {
-    const classSelector = 
-        document.getElementById('classSelector');
-    const selectedClass = classSelector.
-        options[classSelector.selectedIndex].value;
-    const studentsList = 
-        document.getElementById('studentsList');
+    const classSelector = document.getElementById('classSelector');
+    const selectedClass = classSelector.options[classSelector.selectedIndex].value;
+
+    const studentsList = document.getElementById('studentsList');
     studentsList.innerHTML = '';
 
     // Retrieve students from local storage
-    const savedStudents = JSON.parse
-        (localStorage.getItem('students')) || {};
-    const selectedClassStudents = 
-        savedStudents[selectedClass] || [];
+    const savedStudents = JSON.parse(localStorage.getItem('students')) || {};
+    const selectedClassStudents = savedStudents[selectedClass] || [];
 
     selectedClassStudents.forEach(student => {
         const listItem = document.createElement('li');
-        listItem.setAttribute
-            ('data-roll-number', student.rollNumber);
-        listItem.innerHTML = 
-            `<strong>
-                ${student.name}
-            </strong>
-            ${student.rollNumber}`;
+        listItem.setAttribute('data-roll-number', student.rollNumber);
 
-        //const absentButton = createButton('缺席', 'absent', 
-        //    () => markAttendance('absent', listItem, selectedClass));
-        const presentButton = createButton('出席', 'present', 
-            () => markAttendance('present', listItem, selectedClass));
-        //const leaveButton = createButton('請假', 'leave', 
-        //    () => markAttendance('leave', listItem, selectedClass));
-        const resetButton =
-        createButton('重設', 'reset',
-            () => markAttendance('reset', listItem, selectedClass));
-        //listItem.appendChild(absentButton);
-        listItem.appendChild(presentButton);
-        //listItem.appendChild(leaveButton);
-        listItem.appendChild(resetButton); //jt 0928 night
+        listItem.innerHTML = `
+            <strong>${student.name}</strong>
+            ${student.rollNumber}
+        `;
+
+        // Get saved attendance state (optional but recommended)
+        const savedColor = getSavedColor(selectedClass, student.rollNumber);
+        const initialStatus = savedColor ? 'present' : 'reset';
+
+        // Create ONE toggle button
+        const toggleButton = createButton(
+            initialStatus === 'present' ? '重設' : '出席',
+            initialStatus === 'present' ? 'reset' : 'present',
+            () => {
+                const currentStatus = toggleButton.dataset.status;
+
+                if (currentStatus === 'reset') {
+                    markAttendance('present', listItem, selectedClass);
+                    toggleButton.textContent = '重設';
+                    toggleButton.className = 'reset';
+                    toggleButton.dataset.status = 'present';
+                } else {
+                    markAttendance('reset', listItem, selectedClass);
+                    toggleButton.textContent = '出席';
+                    toggleButton.className = 'present';
+                    toggleButton.dataset.status = 'reset';
+                }
+            }
+        );
+
+        // Set initial state
+        toggleButton.dataset.status = initialStatus;
+
+        listItem.appendChild(toggleButton);
         studentsList.appendChild(listItem);
 
-        const savedColor = getSavedColor
-            (selectedClass, student.rollNumber);
+        // Restore saved color
         if (savedColor) {
             listItem.style.backgroundColor = savedColor;
         }
-
-
     });
 
     // Check if attendance for the 
