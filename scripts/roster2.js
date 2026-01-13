@@ -235,6 +235,7 @@ function submitAttendance() {
         return;
     }
 
+    showAttendanceResult(selectedClass);//remove below list 0113
 /*    const studentsList =
         document.getElementById('studentsList');
 
@@ -258,7 +259,7 @@ function submitAttendance() {
     }
             
     // Clear the student list and reset the form
-    studentsList.innerHTML = '';*/ //remove hide list 0113
+    studentsList.innerHTML = '';*/ 
 }
 
 function isAttendanceSubmittedForClass(selectedClass) {
