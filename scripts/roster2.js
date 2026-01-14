@@ -573,14 +573,16 @@ function showStudentsList() {
             'status1',
             listItem,
             selectedClass,
-            status1
+            'reset',
+            { reset: '(1)☑️', present: '(1)✅' }   // Status 1 icons
         );
 
         const togglePresent2 = createAttendanceToggle(
             'status2',
             listItem,
             selectedClass,
-            status2
+            'reset',
+            { reset: '(2)⬜', present: '(2)✔️' }    // Status 2 icons
         );
 
         listItem.appendChild(togglePresent1);
