@@ -706,7 +706,7 @@ function showSummary(selectedClass) {
         record => record.class === selectedClass
     );
 
-    const totalStudents = filteredAttendanceData.length/2; // each student has 2 records
+    const totalStudents = filteredAttendanceData.length;
 
     // STATUS 1
     const presentStatus1 = filteredAttendanceData.filter(
