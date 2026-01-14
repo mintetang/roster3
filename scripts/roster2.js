@@ -153,7 +153,7 @@ function addStudent() {
     
 }
 
-function createAttendanceToggle(type, listItem, selectedClass, initialStatus = 'reset', icons = { reset: '☑️', present: '✅' }) {
+function createAttendanceToggle(type, listItem, selectedClass, initialStatus = 'reset', icons = { reset: '⬜', present: '✅' }) {
     const toggleButton = createButton(icons[initialStatus], type, () => {
         const currentStatus = toggleButton.dataset.status;
 
@@ -204,7 +204,7 @@ function std(a, b) {
         listItem,
         selectedClass,
         'reset',
-        { reset: '(1)☑️', present: '(1)✅' }   // Status 1 icons
+        { reset: '(1)⬜', present: '(1)✅' }   // Status 1 icons
     );
 
     const togglePresent2 = createAttendanceToggle(
@@ -573,7 +573,7 @@ function showStudentsList() {
             listItem,
             selectedClass,
             'reset',
-            { reset: '(1)☑️', present: '(1)✅' }   // Status 1 icons
+            { reset: '(1)⬜', present: '(1)✅' }   // Status 1 icons
         );
 
         const togglePresent2 = createAttendanceToggle(
