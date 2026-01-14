@@ -153,22 +153,22 @@ function addStudent() {
     
 }
 
-function createAttendanceToggle(type, listItem, selectedClass, initialStatus = 'reset') {
-    const toggleButton = createButton('☑️', type, () => {
+function createAttendanceToggle(type, listItem, selectedClass, initialStatus = 'reset', icons = { reset: '☑️', present: '✅' }) {
+    const toggleButton = createButton(icons[initialStatus], type, () => {
         const currentStatus = toggleButton.dataset.status;
 
         if (currentStatus === 'reset') {
             // Mark as present
             markAttendance(type, 'present', listItem, selectedClass);
 
-            toggleButton.textContent = '✅';
+            toggleButton.textContent = icons.present;
             toggleButton.className = type;
             toggleButton.dataset.status = 'present';
         } else {
             // Reset attendance
             markAttendance(type, 'reset', listItem, selectedClass);
 
-            toggleButton.textContent = '☑️';
+            toggleButton.textContent = icons.reset;
             toggleButton.className = 'reset';
             toggleButton.dataset.status = 'reset';
         }
@@ -176,11 +176,12 @@ function createAttendanceToggle(type, listItem, selectedClass, initialStatus = '
 
     // Restore saved state
     toggleButton.dataset.status = initialStatus;
-    toggleButton.textContent = initialStatus === 'present' ? '✅' : '☑️';
+    toggleButton.textContent = initialStatus === 'present' ? icons.present : icons.reset;
     toggleButton.className = initialStatus === 'present' ? type : 'reset';
 
     return toggleButton;
 }
+
 
 function std(a, b) {
     const newStudentName = a;
@@ -202,14 +203,16 @@ function std(a, b) {
         'status1',
         listItem,
         selectedClass,
-        'reset'
+        'reset',
+        { reset: '(1)☑️', present: '(1)✅' }   // Status 1 icons
     );
 
     const togglePresent2 = createAttendanceToggle(
         'status2',
         listItem,
         selectedClass,
-        'reset'
+        'reset',
+        { reset: '(2)⬜', present: '(2)✔️' }    // Status 2 icons
     );
 
     listItem.appendChild(togglePresent1);
