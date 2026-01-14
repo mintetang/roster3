@@ -371,7 +371,7 @@ function showAttendanceResult(selectedClass) {
 
    document.getElementById('attendancePresent').innerText = presentStatus1 + presentStatus2;
 ;
-    document.getElementById('attendanceAbsent').innerText = absentStatus1 + absentStatus2;
+    document.getElementById('attendanceAbsent').innerText = totalStudents - (presentStatus1 + presentStatus2);
 
     document.getElementById('attendanceRate1').innerText = attendanceRate1;
     document.getElementById('attendanceRate2').innerText = attendanceRate2;
