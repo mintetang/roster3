@@ -714,7 +714,7 @@ function showSummary(selectedClass) {
     ).length;
 
     const absentStatus1 = filteredAttendanceData.filter(
-        record => record.status1 !== 'present'
+        record => record.status1 === 'reset'
     ).length;
 
     // STATUS 2
@@ -723,7 +723,7 @@ function showSummary(selectedClass) {
     ).length;
 
     const absentStatus2 = filteredAttendanceData.filter(
-        record => record.status2 !== 'present'
+        record => record.status2 === 'reset'
     ).length;
 
     // Update UI only if elements exist
