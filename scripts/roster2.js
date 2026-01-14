@@ -153,6 +153,30 @@ function addStudent() {
     
 }
 
+function createAttendanceToggle(type, listItem, selectedClass) {
+    const toggleButton = createButton('☑️', type, () => {
+        const currentStatus = toggleButton.dataset.status;
+
+        if (currentStatus === 'reset') {
+            markAttendance(type, listItem, selectedClass);
+            toggleButton.textContent = '✅';
+            toggleButton.className = type;
+            toggleButton.dataset.status = type;
+        } else {
+            markAttendance('reset', listItem, selectedClass);
+            toggleButton.textContent = '☑️';
+            toggleButton.className = 'reset';
+            toggleButton.dataset.status = 'reset';
+        }
+    });
+
+    // Initial state
+    toggleButton.dataset.status = 'reset';
+    toggleButton.className = 'reset';
+
+    return toggleButton;
+}
+
 function std(a, b) {
     const newStudentName = a;
     const newStudentRoll = b;
@@ -168,24 +192,20 @@ function std(a, b) {
         <strong>${newStudentName}</strong> ${newStudentRoll}
     `;
 
-    // Create ONE toggle button
-    const toggleButton = createButton('☑️', 'present', () => {
-        const currentStatus = toggleButton.dataset.status;
+    // Create TWO toggle buttons
+    const togglePresent1 = createAttendanceToggle('present1', listItem, selectedClass);
+    const togglePresent2 = createAttendanceToggle('present2', listItem, selectedClass);
 
-        if (currentStatus === 'reset') {
-            // Change to present
-            markAttendance('present', listItem, selectedClass);
-            toggleButton.textContent = '✅';
-            toggleButton.className = 'reset';
-            toggleButton.dataset.status = 'present';
-        } else {
-            // Change to reset
-            markAttendance('reset', listItem, selectedClass);
-            toggleButton.textContent = '☑️';
-            toggleButton.className = 'present';
-            toggleButton.dataset.status = 'reset';
-        }
-    });
+    listItem.appendChild(togglePresent1);
+    listItem.appendChild(togglePresent2);
+
+    studentsList.appendChild(listItem);
+
+    saveStudentsList(selectedClass);
+    updateAttendanceRecord(newStudentName, selectedClass, 'reset');
+    closePopup();
+}
+
 
     // Initial state
     toggleButton.dataset.status = 'reset';
@@ -516,7 +536,6 @@ function showStudentsList() {
     const studentsList = document.getElementById('studentsList');
     studentsList.innerHTML = '';
 
-    // Retrieve students from local storage
     const savedStudents = JSON.parse(localStorage.getItem('students')) || {};
     const selectedClassStudents = savedStudents[selectedClass] || [];
 
@@ -529,30 +548,32 @@ function showStudentsList() {
             ${student.rollNumber}
         `;
 
-        // Get saved attendance state (optional but recommended)
-        const savedColor = getSavedColor(selectedClass, student.rollNumber);
-        const initialStatus = savedColor ? 'present' : 'reset';
+        // 🔹 Load saved attendance states
+        const status1 = getSavedAttendance(selectedClass, student.rollNumber, 'present1') || 'reset';
+        const status2 = getSavedAttendance(selectedClass, student.rollNumber, 'present2') || 'reset';
 
-        // Create ONE toggle button
-        const toggleButton = createButton(
-            initialStatus === 'present' ? '✅' : '☑️',
-            initialStatus === 'present' ? 'reset' : 'present',
-            () => {
-                const currentStatus = toggleButton.dataset.status;
-
-                if (currentStatus === 'reset') {
-                    markAttendance('present', listItem, selectedClass);
-                    toggleButton.textContent = '✅';
-                    toggleButton.className = 'reset';
-                    toggleButton.dataset.status = 'present';
-                } else {
-                    markAttendance('reset', listItem, selectedClass);
-                    toggleButton.textContent = '☑️';
-                    toggleButton.className = 'present';
-                    toggleButton.dataset.status = 'reset';
-                }
-            }
+        // 🔹 Create TWO toggle buttons
+        const togglePresent1 = createAttendanceToggle(
+            'present1',
+            listItem,
+            selectedClass,
+            status1
         );
+
+        const togglePresent2 = createAttendanceToggle(
+            'present2',
+            listItem,
+            selectedClass,
+            status2
+        );
+
+        listItem.appendChild(togglePresent1);
+        listItem.appendChild(togglePresent2);
+
+        studentsList.appendChild(listItem);
+    });
+}
+
 
         // Set initial state
         toggleButton.dataset.status = initialStatus;
