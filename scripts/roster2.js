@@ -233,7 +233,8 @@ function addClass() {
         getElementById('session').value;
     const tempClassName = document.
         getElementById('newClassName').value;
-	const newClassName = `${tempClassName}-${newSession}`;
+	//const newClassName = `${tempClassName}-${newSession}`;
+    const newClassName = tempClassName;
 	//console.log(newClassName); // jt 0928
 
     if (!newClassName) {
@@ -250,7 +251,7 @@ function addClass() {
     newClassOption.text = newClassName;
     classSelector.add(newClassOption);
     classSelector.value = newClassName;
-    showStudentsList();
+    //showStudentsList();
     saveClasses();
     closePopup();
 }
