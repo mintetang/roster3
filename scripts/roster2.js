@@ -702,14 +702,13 @@ function showSummary(selectedClass) {
     const savedAttendanceData =
         JSON.parse(localStorage.getItem('attendanceData')) || [];
 
-    // Filter by selected class
     const filteredAttendanceData = savedAttendanceData.filter(
         record => record.class === selectedClass
     );
 
-    const totalStudents = filteredAttendanceData.length;
+    const totalStudents = filteredAttendanceData.length/2; // each student has 2 records
 
-    // ----- STATUS 1 COUNTS -----
+    // STATUS 1
     const presentStatus1 = filteredAttendanceData.filter(
         record => record.status1 === 'present'
     ).length;
@@ -718,7 +717,7 @@ function showSummary(selectedClass) {
         record => record.status1 !== 'present'
     ).length;
 
-    // ----- STATUS 2 COUNTS -----
+    // STATUS 2
     const presentStatus2 = filteredAttendanceData.filter(
         record => record.status2 === 'present'
     ).length;
@@ -727,14 +726,21 @@ function showSummary(selectedClass) {
         record => record.status2 !== 'present'
     ).length;
 
-    // Update UI
-    document.getElementById('totalStudents').innerText = totalStudents;
+    // Update UI only if elements exist
+    const totalStudentsEl = document.getElementById('totalStudents');
+    if (totalStudentsEl) totalStudentsEl.innerText = totalStudents;
 
-    document.getElementById('totalPresent1').innerText = presentStatus1;
-    document.getElementById('totalAbsent1').innerText = absentStatus1;
+    const totalPresent1El = document.getElementById('totalPresent1');
+    if (totalPresent1El) totalPresent1El.innerText = presentStatus1;
 
-    document.getElementById('totalPresent2').innerText = presentStatus2;
-    document.getElementById('totalAbsent2').innerText = absentStatus2;
+    const totalAbsent1El = document.getElementById('totalAbsent1');
+    if (totalAbsent1El) totalAbsent1El.innerText = absentStatus1;
+
+    const totalPresent2El = document.getElementById('totalPresent2');
+    if (totalPresent2El) totalPresent2El.innerText = presentStatus2;
+
+    const totalAbsent2El = document.getElementById('totalAbsent2');
+    if (totalAbsent2El) totalAbsent2El.innerText = absentStatus2;
 }
 
 
