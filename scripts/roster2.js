@@ -672,8 +672,8 @@ function showSummary(selectedClass) {
         filter(record => record.status !== 'present').length;
     //const totalLeave = filteredAttendanceData.
     //    filter(record => record.status === 'leave').length;
-    const totalReset = filteredAttendanceData.
-        filter(record => record.status === 'reset').length; //jt 1002
+    //const totalReset = filteredAttendanceData.
+    //    filter(record => record.status === 'reset').length; //jt 1002
 
     const totalStudents = filteredAttendanceData.length;
     console.log(totalStudents);
