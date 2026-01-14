@@ -232,13 +232,12 @@ function std(a, b) {
 
 function addClass() {
 	//jt 0927
-	const newSession = document.
-        getElementById('session').value;
+	//const newSession = document.
+    //    getElementById('session').value;
     const tempClassName = document.
         getElementById('newClassName').value;
 	//const newClassName = `${tempClassName}-${newSession}`;
     const newClassName = tempClassName;
-	//console.log(newClassName); // jt 0928
 
     if (!newClassName) {
         alert("請輸入日期.");
