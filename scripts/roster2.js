@@ -314,8 +314,7 @@ function isAttendanceSubmittedForClass(selectedClass) {
 }
 
 function showAttendanceResult(selectedClass) {
-    const resultSection = document.
-        getElementById('resultSection');
+    const resultSection = document.getElementById('resultSection');
 
     if (!resultSection) {
         console.error('Result section is not properly defined.');
@@ -323,50 +322,68 @@ function showAttendanceResult(selectedClass) {
     }
 
     const now = new Date();
-    const date =
-        `${now.getFullYear()}-${String(now.getMonth() + 1).
-        padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const time =
-        `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
-	// Retrieve attendance data from local storage
-    const savedAttendanceData = JSON.parse
-        (localStorage.getItem('attendanceData')) || [];
-    const filteredAttendanceData = savedAttendanceData.
-        filter(record => record.class === selectedClass);
+    // Retrieve attendance data
+    const savedAttendanceData =
+        JSON.parse(localStorage.getItem('attendanceData')) || [];
 
-
-    const totalPresent = filteredAttendanceData.
-        filter(record => record.status === 'present').length;
-    const totalAbsent = filteredAttendanceData.
-        filter(record => record.status !== 'present').length;
-    const totalReset = filteredAttendanceData.
-        filter(record => record.status === 'reset').length; //jt 1002
+    const filteredAttendanceData =
+        savedAttendanceData.filter(record => record.class === selectedClass);
 
     const totalStudents = filteredAttendanceData.length;
-    console.log(totalStudents);
 
-    // Update the result section
-    document.getElementById('attendanceDate').
-        innerText = date;
-    document.getElementById('attendanceTime').
-        innerText = time;
-    document.getElementById('attendanceClass').
-        innerText = selectedClass;
-    document.getElementById('attendanceTotalStudents').
-        innerText = totalStudents;
-    document.getElementById('attendancePresent').
-        innerText = totalPresent;
-    document.getElementById('attendanceAbsent').
-        innerText = totalAbsent;
-    //document.getElementById('attendanceLeave').
-    //    innerText = totalLeave;
-    document.getElementById('attendanceRate').
-        innerText = Math.round(`${totalPresent/totalStudents*100}`)+'%';
+    // STATUS 1
+    const presentStatus1 = filteredAttendanceData.filter(
+        record => record.status1 === 'present'
+    ).length;
 
-    // Show the attendance result section
+    const absentStatus1 = filteredAttendanceData.filter(
+        record => record.status1 === 'reset'
+    ).length;
+
+    // STATUS 2
+    const presentStatus2 = filteredAttendanceData.filter(
+        record => record.status2 === 'present'
+    ).length;
+
+    const absentStatus2 = filteredAttendanceData.filter(
+        record => record.status2 === 'reset'
+    ).length;
+
+    // Attendance rate 
+    const attendanceRate1 =
+        totalStudents > 0
+            ? Math.round((presentStatus1 / totalStudents) * 100) + '%'
+            : '0%';
+
+    const attendanceRate2 =
+        totalStudents > 0
+            ? Math.round((presentStatus2 / totalStudents) * 100) + '%'
+            : '0%';
+
+    // Update UI
+    document.getElementById('attendanceDate').innerText = date;
+    document.getElementById('attendanceTime').innerText = time;
+    document.getElementById('attendanceClass').innerText = selectedClass;
+    document.getElementById('attendanceTotalStudents').innerText = totalStudents;
+
+   document.getElementById('attendancePresent').innerText = presentStatus1 + presentStatus2;
+;
+    document.getElementById('attendanceAbsent').innerText = absentStatus1 + absentStatus2;
+
+    document.getElementById('attendanceRate1').innerText = attendanceRate1;
+    document.getElementById('attendanceRate2').innerText = attendanceRate2;
+    const overallAttendanceRate =
+        totalStudents > 0
+            ? Math.round(((presentStatus1 + presentStatus2) / totalStudents) * 100) + '%'
+            : '0%';
+    document.getElementById('attendanceRate').innerText = overallAttendanceRate;
+    // Show result section
     resultSection.style.display = 'block';
 }
+
 function histRate() {
     const classSelector = document.
         getElementById('classSelector');
