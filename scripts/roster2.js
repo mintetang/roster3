@@ -207,18 +207,6 @@ function std(a, b) {
 }
 
 
-    // Initial state
-    toggleButton.dataset.status = 'reset';
-
-    listItem.appendChild(toggleButton);
-    studentsList.appendChild(listItem);
-
-    saveStudentsList(selectedClass);
-    updateAttendanceRecord(newStudentName, selectedClass, 'reset');
-    closePopup();
-}
-
-
 function addClass() {
 	//jt 0927
 	const newSession = document.
@@ -569,40 +557,22 @@ function showStudentsList() {
 
         listItem.appendChild(togglePresent1);
         listItem.appendChild(togglePresent2);
-
-        studentsList.appendChild(listItem);
-    });
-}
-
-
-        // Set initial state
-        toggleButton.dataset.status = initialStatus;
-
-        listItem.appendChild(toggleButton);
         studentsList.appendChild(listItem);
 
-        // Restore saved color
+        // 🔹 Restore saved color (unchanged)
+        const savedColor = getSavedColor(selectedClass, student.rollNumber);
         if (savedColor) {
             listItem.style.backgroundColor = savedColor;
         }
     });
 
-    // Check if attendance for the 
-    // selected class has been submitted
-    const resultSection = document.
-        getElementById('resultSection');
-    const isAttendanceSubmitted = 
-        resultSection.style.display === 'block';
+    // 🔹 Keep your existing logic untouched
+    const resultSection = document.getElementById('resultSection');
+    const isAttendanceSubmitted = resultSection.style.display === 'block';
 
-    // Show the appropriate section based 
-    // on the attendance submission status
     if (isAttendanceSubmitted) {
-        // Attendance has been submitted, 
-        // show the attendance result
         showAttendanceResult(selectedClass);
     } else {
-        // Attendance not submitted, 
-        // show the normal summary
         showSummary(selectedClass);
     }
 }
