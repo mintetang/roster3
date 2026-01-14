@@ -577,6 +577,20 @@ function showStudentsList() {
     }
 }
 
+function getSavedAttendance(className, rollNumber, type) {
+    const attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
+
+    if (
+        attendanceData[className] &&
+        attendanceData[className][rollNumber] &&
+        attendanceData[className][rollNumber][type]
+    ) {
+        return attendanceData[className][rollNumber][type];
+    }
+
+    return null;
+}
+
 
 function markAttendance
     (status, listItem, selectedClass) {
