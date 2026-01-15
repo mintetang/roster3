@@ -599,7 +599,7 @@ function showStudentsList() {
             'status1',
             listItem,
             selectedClass,
-            'reset',
+            status1, // ✅ restored value
             { reset: '(1)⬜', present: '(1)✅' }   // Status 1 icons
         );
 
@@ -607,7 +607,7 @@ function showStudentsList() {
             'status2',
             listItem,
             selectedClass,
-            'reset',
+            status2, // ✅ restored value
             { reset: '(2)⬜', present: '(2)✔️' }    // Status 2 icons
         );
 
