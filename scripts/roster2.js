@@ -237,24 +237,23 @@ function createAttendanceToggle(
     const toggleButton = createButton(icons[initialStatus], type, () => {
         const currentStatus = toggleButton.dataset.status;
 
+        let newStatus;
         if (currentStatus === 'reset') {
-            // Mark as present
-            markAttendance(type, 'present', listItem, selectedClass);
-
-            toggleButton.textContent = icons.present;
-            toggleButton.className = type;
-            toggleButton.dataset.status = 'present';
+            newStatus = 'present';
         } else {
-            // Reset attendance
-            markAttendance(type, 'reset', listItem, selectedClass);
-
-            toggleButton.textContent = icons.reset;
-            toggleButton.className = 'reset';
-            toggleButton.dataset.status = 'reset';
+            newStatus = 'reset';
         }
+
+        // Update localStorage and UI
+        markAttendance(type, newStatus, listItem, selectedClass);
+
+        // Update button text and dataset immediately
+        toggleButton.textContent = icons[newStatus] || icons.reset;
+        toggleButton.dataset.status = newStatus;
+        toggleButton.className = newStatus === 'present' ? type : 'reset';
     });
 
-    // Initialize button to reflect saved state
+    // Initialize button text and status
     toggleButton.dataset.status = initialStatus;
     toggleButton.textContent = icons[initialStatus] || icons.reset;
     toggleButton.className = initialStatus === 'present' ? type : 'reset';
