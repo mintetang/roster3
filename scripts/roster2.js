@@ -130,6 +130,16 @@ function readOrg() {
     closePopup();
 }
 
+async function handleSubmit() {
+    const success = addClass();
+
+    // ⛔ stop immediately if addClass failed
+    if (!success) return;
+
+    await addOrg();
+}
+
+
 async function addOrg() {
     const requestURL =
         //"https://roster2.wasmer.app/scripts/nameroll1.json";
@@ -266,32 +276,31 @@ function std(a, b) {
 
 
 function addClass() {
-	//jt 0927
-	//const newSession = document.
-    //    getElementById('session').value;
-    const tempClassName = document.
-        getElementById('newClassName').value;
-	//const newClassName = `${tempClassName}-${newSession}`;
+    const tempClassName =
+        document.getElementById('newClassName').value;
+
     const newClassName = tempClassName;
 
     if (!newClassName) {
         alert("請輸入日期.");
-        return;
+        return false; // ❌ failure
     }
 
-    const classSelector = document.getElementById('classSelector');
+    const classSelector =
+        document.getElementById('classSelector');
 
-    // 🔴 Check if class already exists
     const exists = Array.from(classSelector.options)
         .some(option => option.value === newClassName);
 
     if (exists) {
         alert("此堂次已存在，請勿重複新增。");
-        return;
+        return false; // ❌ failure
     }
 
-    // ✅ Add the new class
-    const newClassOption = document.createElement('option');
+    // ✅ success path
+    const newClassOption =
+        document.createElement('option');
+
     newClassOption.value = newClassName;
     newClassOption.text = newClassName;
 
@@ -301,7 +310,10 @@ function addClass() {
     showStudentsList();
     saveClasses();
     closePopup();
+
+    return true; // ✅ success
 }
+
 
 function submitAttendance() {
     const classSelector = document.
