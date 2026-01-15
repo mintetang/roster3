@@ -589,10 +589,10 @@ function showStudentsList() {
 
         // 🔹 Load saved attendance states (UPDATED KEYS)
         const status1 =
-            getSavedAttendance(selectedClass, student.rollNumber, 'status1') || 'reset';
+            getSavedAttendance(selectedClass, student.name, 'status1') || 'reset';
 
         const status2 =
-            getSavedAttendance(selectedClass, student.rollNumber, 'status2') || 'reset';
+            getSavedAttendance(selectedClass, student.name, 'status2') || 'reset';
 
         // 🔹 Create TWO toggle buttons (UPDATED TYPES)
         const togglePresent1 = createAttendanceToggle(
@@ -637,18 +637,15 @@ function showStudentsList() {
 }
 
 
-function getSavedAttendance(className, rollNumber, type) {
-    const attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
+function getSavedAttendance(className, studentName, type) {
+    const attendanceData =
+        JSON.parse(localStorage.getItem('attendanceData')) || [];
 
-    if (
-        attendanceData[className] &&
-        attendanceData[className][rollNumber] &&
-        attendanceData[className][rollNumber][type]
-    ) {
-        return attendanceData[className][rollNumber][type];
-    }
+    const record = attendanceData.find(
+        r => r.class === className && r.name === studentName
+    );
 
-    return null;
+    return record ? record[type] : null;
 }
 
 
