@@ -673,12 +673,11 @@ function markAttendance(statusType, statusValue, listItem, selectedClass) {
 
 function getStatusColor(status) {
     switch (status) {
-        case 'present1':
-            return '#2ecc71';
-        case 'present2':
-            return '#f39c12';
+        case 'present':
+            return '#2ecc71'; // green
+        case 'absent':
+            return '#e74c3c'; // red
         case 'reset':
-            //return 'rgba(0, 0, 0, 0.06)'; //jt 0928 9pm
             return '';
         default:
             return '';
