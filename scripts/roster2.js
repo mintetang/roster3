@@ -142,24 +142,23 @@ async function handleSubmit() {
 
 async function addOrg() {
     const requestURL =
-        //"https://roster2.wasmer.app/scripts/nameroll1.json";
         "https://mintetang.github.io/roster3/scripts/nameroll1.json";
-    const request = new Request(requestURL);
-    const response = await fetch(request);
+
+    const response = await fetch(requestURL);
     const rData = await response.json();
     const jsArray = rData.data;
-    /*const savedStudents = JSON.parse
-            (localStorage.getItem('students'));
-    const orgArray = savedStudents[selectedClass];
-    //console.log(jsArray.length);*/
-    for (let i = 0; i < jsArray.length; i++) 
-        {
-    const newStudentName = jsArray[i].name;
-    const newStudentRoll = jsArray[i].rollNumber;
-    if (!newStudentName || !newStudentRoll) {
-        alert("Missing name or roll number.");
-        return;}
-    std(newStudentName, newStudentRoll);}
+
+    for (let i = 0; i < jsArray.length; i++) {
+        const newStudentName = jsArray[i].name;
+        const newStudentRoll = jsArray[i].rollNumber;
+
+        if (!newStudentName || !newStudentRoll) {
+            alert("Missing name or roll number.");
+            return; // stop addOrg only
+        }
+
+        std(newStudentName, newStudentRoll);
+    }
 }
 
 function addStudent() {
