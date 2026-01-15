@@ -139,14 +139,35 @@ async function addOrg() {
 }
 
 function addStudent() {
-    // Get input values
-    const newStudentName = document.
-        getElementById('newStudentName').value;
-    const newStudentRoll = document.
-        getElementById('newStudentRoll').value;
+    const newStudentName =
+        document.getElementById('newStudentName').value.trim();
+    const newStudentRoll =
+        document.getElementById('newStudentRoll').value.trim();
 
     if (!newStudentName || !newStudentRoll) {
         alert("Please provide both name and roll number.");
+        return;
+    }
+
+    const classSelector =
+        document.getElementById('classSelector');
+    const selectedClass =
+        classSelector.options[classSelector.selectedIndex].value;
+
+    const students =
+        JSON.parse(localStorage.getItem('students')) || {};
+
+    const classStudents = students[selectedClass] || [];
+
+    // ✅ DUPLICATE CHECK
+    const isDuplicate = classStudents.some(
+        student => student.rollNumber === newStudentRoll
+    );
+
+    if (isDuplicate) {
+        alert(
+          `Roll number ${newStudentRoll} 重複 in ${selectedClass}`
+        );
         return;
     }
     std(newStudentName, newStudentRoll);
