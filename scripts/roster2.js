@@ -244,16 +244,26 @@ function addClass() {
         return;
     }
 
-    // Add the new class to the class selector
-    const classSelector = document.
-        getElementById('classSelector');
-    const newClassOption = document.
-        createElement('option');
+    const classSelector = document.getElementById('classSelector');
+
+    // 🔴 Check if class already exists
+    const exists = Array.from(classSelector.options)
+        .some(option => option.value === newClassName);
+
+    if (exists) {
+        alert("此堂次已存在，請勿重複新增。");
+        return;
+    }
+
+    // ✅ Add the new class
+    const newClassOption = document.createElement('option');
     newClassOption.value = newClassName;
     newClassOption.text = newClassName;
+
     classSelector.add(newClassOption);
     classSelector.value = newClassName;
-    //showStudentsList();
+
+    showStudentsList();
     saveClasses();
     closePopup();
 }
