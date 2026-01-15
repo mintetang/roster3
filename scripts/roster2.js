@@ -138,20 +138,94 @@ async function addOrg() {
     std(newStudentName, newStudentRoll);}
 }
 
+function addClass() {
+	//jt 0927
+	//const newSession = document.
+    //    getElementById('session').value;
+    const tempClassName = document.
+        getElementById('newClassName').value;
+	//const newClassName = `${tempClassName}-${newSession}`;
+    const newClassName = tempClassName;
+
+    if (!newClassName) {
+        alert("請輸入日期.");
+        return;
+    }
+
+    const classSelector = document.getElementById('classSelector');
+
+    // 🔴 Check if class already exists
+    const exists = Array.from(classSelector.options)
+        .some(option => option.value === newClassName);
+
+    if (exists) {
+        alert("此堂次已存在，請勿重複新增。");
+        return;
+    }
+
+    // ✅ Add the new class
+    const newClassOption = document.createElement('option');
+    newClassOption.value = newClassName;
+    newClassOption.text = newClassName;
+
+    classSelector.add(newClassOption);
+    classSelector.value = newClassName;
+
+    showStudentsList();
+    saveClasses();
+    closePopup();
+}
+
 function addStudent() {
-    // Get input values
-    const newStudentName = document.
-        getElementById('newStudentName').value;
-    const newStudentRoll = document.
-        getElementById('newStudentRoll').value;
+    const newStudentName = document.getElementById('newStudentName').value;
+    const newStudentRoll = document.getElementById('newStudentRoll').value;
 
     if (!newStudentName || !newStudentRoll) {
         alert("Please provide both name and roll number.");
         return;
     }
+
     std(newStudentName, newStudentRoll);
-    
 }
+
+function std(newStudentName, newStudentRoll) {
+    const classSelector = document.getElementById('classSelector');
+    const selectedClass = classSelector.value;
+    const studentsList = document.getElementById('studentsList');
+
+    // Create student list item
+    const listItem = document.createElement('li');
+    listItem.setAttribute('data-roll-number', newStudentRoll);
+    listItem.innerHTML = `<strong>${newStudentName}</strong> ${newStudentRoll}`;
+
+    // Load saved attendance if any
+    const status1 = getSavedAttendance(selectedClass, newStudentRoll, 'status1') || 'reset';
+    const status2 = getSavedAttendance(selectedClass, newStudentRoll, 'status2') || 'reset';
+
+    const togglePresent1 = createAttendanceToggle(
+        'status1', listItem, selectedClass, status1, { reset: '(1)⬜', present: '(1)✅' }
+    );
+    const togglePresent2 = createAttendanceToggle(
+        'status2', listItem, selectedClass, status2, { reset: '(2)⬜', present: '(2)✔️' }
+    );
+
+    listItem.appendChild(togglePresent1);
+    listItem.appendChild(togglePresent2);
+    studentsList.appendChild(listItem);
+
+    // Save student to class
+    const savedStudents = JSON.parse(localStorage.getItem('students')) || {};
+    if (!savedStudents[selectedClass]) savedStudents[selectedClass] = [];
+    savedStudents[selectedClass].push({ name: newStudentName, rollNumber: newStudentRoll });
+    localStorage.setItem('students', JSON.stringify(savedStudents));
+
+    // Initialize attendance record
+    updateAttendanceRecord(newStudentRoll, selectedClass, 'status1', status1);
+    updateAttendanceRecord(newStudentRoll, selectedClass, 'status2', status2);
+
+    closePopup();
+}
+
 
 function createAttendanceToggle(type, listItem, selectedClass, initialStatus = 'reset', icons = { reset: '⬜', present: '✅' }) {
     const toggleButton = createButton(icons[initialStatus], type, () => {
@@ -182,81 +256,6 @@ function createAttendanceToggle(type, listItem, selectedClass, initialStatus = '
     return toggleButton;
 }
 
-
-function std(a, b) {
-    const newStudentName = a;
-    const newStudentRoll = b;
-
-    const classSelector = document.getElementById('classSelector');
-    const selectedClass = classSelector.options[classSelector.selectedIndex].value;
-    const studentsList = document.getElementById('studentsList');
-
-    const listItem = document.createElement('li');
-    listItem.setAttribute('data-roll-number', newStudentRoll);
-
-    listItem.innerHTML = `
-        <strong>${newStudentName}</strong> ${newStudentRoll}
-    `;
-
-    // 🔹 Create TWO toggle buttons (UPDATED TYPES)
-    const togglePresent1 = createAttendanceToggle(
-        'status1',
-        listItem,
-        selectedClass,
-        'reset',
-        { reset: '(1)⬜', present: '(1)✅' }   // Status 1 icons
-    );
-
-    const togglePresent2 = createAttendanceToggle(
-        'status2',
-        listItem,
-        selectedClass,
-        'reset',
-        { reset: '(2)⬜', present: '(2)✔️' }    // Status 2 icons
-    );
-
-    listItem.appendChild(togglePresent1);
-    listItem.appendChild(togglePresent2);
-    studentsList.appendChild(listItem);
-
-    // Save students list
-    saveStudentsList(selectedClass);
-
-    // 🔹 Initialize attendance record with both statuses
-    updateAttendanceRecord(newStudentName, selectedClass, 'status1', 'reset');
-    updateAttendanceRecord(newStudentName, selectedClass, 'status2', 'reset');
-
-    closePopup();
-}
-
-
-function addClass() {
-	//jt 0927
-	//const newSession = document.
-    //    getElementById('session').value;
-    const tempClassName = document.
-        getElementById('newClassName').value;
-	//const newClassName = `${tempClassName}-${newSession}`;
-    const newClassName = tempClassName;
-
-    if (!newClassName) {
-        alert("請輸入日期.");
-        return;
-    }
-
-    // Add the new class to the class selector
-    const classSelector = document.
-        getElementById('classSelector');
-    const newClassOption = document.
-        createElement('option');
-    newClassOption.value = newClassName;
-    newClassOption.text = newClassName;
-    classSelector.add(newClassOption);
-    classSelector.value = newClassName;
-    //showStudentsList();
-    saveClasses();
-    closePopup();
-}
 
 function submitAttendance() {
     const classSelector = document.
@@ -559,162 +558,87 @@ function populateClasses() {
 
 function showStudentsList() {
     const classSelector = document.getElementById('classSelector');
-    const selectedClass = classSelector.options[classSelector.selectedIndex].value;
+    const selectedClass = classSelector.value;
 
     const studentsList = document.getElementById('studentsList');
     studentsList.innerHTML = '';
 
-    const savedStudents =
-        JSON.parse(localStorage.getItem('students')) || {};
+    const savedStudents = JSON.parse(localStorage.getItem('students')) || {};
     const selectedClassStudents = savedStudents[selectedClass] || [];
 
     selectedClassStudents.forEach(student => {
         const listItem = document.createElement('li');
         listItem.setAttribute('data-roll-number', student.rollNumber);
+        listItem.innerHTML = `<strong>${student.name}</strong> ${student.rollNumber}`;
 
-        listItem.innerHTML = `
-            <strong>${student.name}</strong>
-            ${student.rollNumber}
-        `;
+        // Restore saved attendance
+        const status1 = getSavedAttendance(selectedClass, student.rollNumber, 'status1') || 'reset';
+        const status2 = getSavedAttendance(selectedClass, student.rollNumber, 'status2') || 'reset';
 
-        // 🔹 Load saved attendance states (UPDATED KEYS)
-        const status1 =
-            getSavedAttendance(selectedClass, student.rollNumber, 'status1') || 'reset';
-
-        const status2 =
-            getSavedAttendance(selectedClass, student.rollNumber, 'status2') || 'reset';
-
-        // 🔹 Create TWO toggle buttons (UPDATED TYPES)
         const togglePresent1 = createAttendanceToggle(
-            'status1',
-            listItem,
-            selectedClass,
-            'reset',
-            { reset: '(1)⬜', present: '(1)✅' }   // Status 1 icons
+            'status1', listItem, selectedClass, status1, { reset: '(1)⬜', present: '(1)✅' }
         );
-
         const togglePresent2 = createAttendanceToggle(
-            'status2',
-            listItem,
-            selectedClass,
-            'reset',
-            { reset: '(2)⬜', present: '(2)✔️' }    // Status 2 icons
+            'status2', listItem, selectedClass, status2, { reset: '(2)⬜', present: '(2)✔️' }
         );
 
         listItem.appendChild(togglePresent1);
         listItem.appendChild(togglePresent2);
         studentsList.appendChild(listItem);
 
-        // 🔹 Restore saved color (unchanged)
-        const savedColor =
-            getSavedColor(selectedClass, student.rollNumber);
-        if (savedColor) {
-            listItem.style.backgroundColor = savedColor;
-        }
+        // Restore saved background color
+        const savedColor = getSavedColor(selectedClass, student.rollNumber);
+        if (savedColor) listItem.style.backgroundColor = savedColor;
     });
 
-    // 🔹 Keep your existing logic untouched
-    const resultSection =
-        document.getElementById('resultSection');
-    const isAttendanceSubmitted =
-        resultSection.style.display === 'block';
-
-    if (isAttendanceSubmitted) {
+    // Show summary or results
+    const resultSection = document.getElementById('resultSection');
+    if (resultSection.style.display === 'block') {
         showAttendanceResult(selectedClass);
     } else {
         showSummary(selectedClass);
     }
 }
 
-
-function getSavedAttendance(className, rollNumber, type) {
-    const attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
-
-    if (
-        attendanceData[className] &&
-        attendanceData[className][rollNumber] &&
-        attendanceData[className][rollNumber][type]
-    ) {
-        return attendanceData[className][rollNumber][type];
-    }
-
-    return null;
-}
-
-
 function markAttendance(statusType, statusValue, listItem, selectedClass) {
-    // Get student name
-    const studentName = listItem
-        .querySelector('strong').innerText;
+    const rollNumber = listItem.getAttribute('data-roll-number');
 
-    // Update background color
-    listItem.style.backgroundColor =
-        getStatusColor(statusValue);
+    // Update UI
+    listItem.style.backgroundColor = getStatusColor(statusValue);
 
-    // Save background color
-    saveColor(
-        selectedClass,
-        listItem.getAttribute('data-roll-number'),
-        getStatusColor(statusValue)
-    );
+    // Save color
+    saveColor(selectedClass, rollNumber, getStatusColor(statusValue));
 
-    // Update attendance record (status1 or status2)
-    updateAttendanceRecord(
-        studentName,
-        selectedClass,
-        statusType,      // "status1" or "status2"
-        statusValue      // "present" | "absent" | "reset"
-    );
+    // Save attendance
+    updateAttendanceRecord(rollNumber, selectedClass, statusType, statusValue);
 
     // Refresh summary
     showSummary(selectedClass);
 }
 
-
 function getStatusColor(status) {
     switch (status) {
-        case 'present':
-            return '#2ecc71'; // green
-        case 'absent':
-            return '#e74c3c'; // red
-        case 'reset':
-            return '';
-        default:
-            return '';
+        case 'present': return '#2ecc71';
+        case 'absent': return '#e74c3c';
+        case 'reset': return '';
+        default: return '';
     }
 }
 
-function updateAttendanceRecord(studentName, selectedClass, statusType, statusValue) {
-    // Retrieve existing attendance data
-    const savedAttendanceData =
-        JSON.parse(localStorage.getItem('attendanceData')) || [];
+function updateAttendanceRecord(rollNumber, selectedClass, statusType, statusValue) {
+    const attendance = JSON.parse(localStorage.getItem('attendanceData')) || {};
 
-    // Find existing record
-    const existingRecordIndex = savedAttendanceData.findIndex(
-        record => record.name === studentName &&
-                  record.class === selectedClass
-    );
+    if (!attendance[selectedClass]) attendance[selectedClass] = {};
+    if (!attendance[selectedClass][rollNumber]) attendance[selectedClass][rollNumber] = { status1: 'reset', status2: 'reset' };
 
-    if (existingRecordIndex !== -1) {
-        // Update only the requested status
-        savedAttendanceData[existingRecordIndex][statusType] = statusValue;
-        savedAttendanceData[existingRecordIndex].date = getCurrentDate();
-    } else {
-        // Create new record with both statuses
-        savedAttendanceData.push({
-            name: studentName,
-            class: selectedClass,
-            status1: statusType === 'status1' ? statusValue : 'reset',
-            status2: statusType === 'status2' ? statusValue : 'reset',
-            date: getCurrentDate()
-        });
-    }
+    attendance[selectedClass][rollNumber][statusType] = statusValue;
 
-    // Save back to localStorage
-    localStorage.setItem(
-        'attendanceData',
-        JSON.stringify(savedAttendanceData)
-    );
+    localStorage.setItem('attendanceData', JSON.stringify(attendance));
+}
+
+function getSavedAttendance(className, rollNumber, statusType) {
+    const attendance = JSON.parse(localStorage.getItem('attendanceData')) || {};
+    return attendance?.[className]?.[rollNumber]?.[statusType] || 'reset';
 }
 
 
