@@ -227,7 +227,13 @@ function std(newStudentName, newStudentRoll) {
 }
 
 
-function createAttendanceToggle(type, listItem, selectedClass, initialStatus = 'reset', icons = { reset: '⬜', present: '✅' }) {
+function createAttendanceToggle(
+    type,
+    listItem,
+    selectedClass,
+    initialStatus = 'reset',
+    icons = { reset: '⬜', present: '✅' }
+) {
     const toggleButton = createButton(icons[initialStatus], type, () => {
         const currentStatus = toggleButton.dataset.status;
 
@@ -248,9 +254,9 @@ function createAttendanceToggle(type, listItem, selectedClass, initialStatus = '
         }
     });
 
-    // Restore saved state
+    // Initialize button to reflect saved state
     toggleButton.dataset.status = initialStatus;
-    toggleButton.textContent = initialStatus === 'present' ? icons.present : icons.reset;
+    toggleButton.textContent = icons[initialStatus] || icons.reset;
     toggleButton.className = initialStatus === 'present' ? type : 'reset';
 
     return toggleButton;
