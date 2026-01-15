@@ -1199,7 +1199,7 @@ async function overwriteFile() {
     const resultText = await response.text();
     console.log("Drive response:", resultText || "(empty)");
 
-    alert("✅ 成功更新 Google roster.json");
+    alert("✅ 成功更新 Google Drive 檔案");
 
   } catch (err) {
     console.error("Update failed:", err);
