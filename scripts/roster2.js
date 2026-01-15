@@ -1,9 +1,23 @@
 //roster2.js
-document.addEventListener("DOMContentLoaded",
-    function () {
-        populateClasses();
+document.addEventListener("DOMContentLoaded", () => {
+    const classSelector =
+        document.getElementById('classSelector');
+
+    // ✅ Step 1: Always save on change
+    classSelector.addEventListener('change', () => {
+        localStorage.setItem(
+            'selectedClass',
+            classSelector.value
+        );
+
+        // Optional: update students immediately
         showStudentsList();
     });
+
+    populateClasses();
+    showStudentsList();
+});
+
 
 function showAddStudentOrgForm() {
     document.getElementById('addStudentOrgPopup').
