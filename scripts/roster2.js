@@ -567,25 +567,29 @@ function createButton(text, status, onClick) {
 }
 
 function populateClasses() {
-    // Retrieve classes from local storage
-    const savedClasses = JSON.parse
-        (localStorage.getItem('classes')) || [];
-    const classSelector = 
+    const savedClasses =
+        JSON.parse(localStorage.getItem('classes')) || [];
+
+    const classSelector =
         document.getElementById('classSelector');
 
+    classSelector.innerHTML = ''; // prevent duplicates
+
     savedClasses.forEach(className => {
-        const newClassOption = 
-            document.createElement('option');
-        newClassOption.value = className;
-        newClassOption.text = className;
-        classSelector.add(newClassOption);
+        const option = document.createElement('option');
+        option.value = className;
+        option.text = className;
+        classSelector.add(option);
     });
-    let ln = classSelector.options.length;
-    //console.log(ln);
-    const selectedClass = classSelector.
-        options[classSelector.selectedIndex+ln-1].value;
-    classSelector.value = selectedClass;
-    //console.log(classSelector.value);
+
+    // Restore previously selected class
+    const savedSelectedClass =
+        localStorage.getItem('selectedClass');
+
+    if (savedSelectedClass &&
+        savedClasses.includes(savedSelectedClass)) {
+        classSelector.value = savedSelectedClass;
+    }
 }
 
 function showStudentsList() {
