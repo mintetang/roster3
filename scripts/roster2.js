@@ -666,11 +666,11 @@ function showStudentsList() {
         studentsList.appendChild(listItem);
 
         // 🔹 Restore saved color (unchanged)
-        /*const savedColor =
+        const savedColor =
             getSavedColor(selectedClass, student.rollNumber);
         if (savedColor) {
             listItem.style.backgroundColor = savedColor;
-        }*/
+        }
     });
 
     // 🔹 Keep your existing logic untouched
@@ -707,13 +707,13 @@ function markAttendance(statusType, statusValue, listItem, selectedClass) {
     /*// Update background color
     listItem.style.backgroundColor =
         getStatusColor(statusValue);
-
+    */
     // Save background color
     saveColor(
         selectedClass,
         listItem.getAttribute('data-roll-number'),
         getStatusColor(statusValue)
-    );*/
+    );
 
     // Update attendance record (status1 or status2)
     updateAttendanceRecord(
