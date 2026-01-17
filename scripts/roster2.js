@@ -664,7 +664,7 @@ function showStudentsList() {
         listItem.appendChild(togglePresent1);
         listItem.appendChild(togglePresent2);
         studentsList.appendChild(listItem);
-
+/*
         // 🔹 Restore saved color (unchanged)
         const savedColor =
             getSavedColor(selectedClass, student.rollNumber);
@@ -672,7 +672,7 @@ function showStudentsList() {
             listItem.style.backgroundColor = savedColor;
         }
     });
-
+*/
     // 🔹 Keep your existing logic untouched
     const resultSection =
         document.getElementById('resultSection');
@@ -707,14 +707,14 @@ function markAttendance(statusType, statusValue, listItem, selectedClass) {
     /*// Update background color
     listItem.style.backgroundColor =
         getStatusColor(statusValue);
-    */
+    
     // Save background color
     saveColor(
         selectedClass,
         listItem.getAttribute('data-roll-number'),
         getStatusColor(statusValue)
     );
-
+*/
     // Update attendance record (status1 or status2)
     updateAttendanceRecord(
         studentName,
@@ -1028,11 +1028,6 @@ function highlightSearchTerm(searchTerm, targetElementId) {
         const highlightedText = cleanedText.replace(regex, `<mark class='highlight'>$1</mark>`);
         //console.log(highlightedText);
         targetElement.innerHTML = highlightedText;
-
-        // Apply CSS for highlighting
-        //const style = document.createElement('style');
-        //style.innerHTML = `.highlight { background-color: yellow; }`;
-        //document.head.appendChild(style);
     }
 
 function scrollToHighlightedTerm() {
