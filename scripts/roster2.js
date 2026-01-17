@@ -908,7 +908,30 @@ function cleanSelectedClass()
     //console.log(localClass);
     localStorage.setItem
             ('classes', JSON.stringify(localClass));
+    // delete selectedClass attendanceData records
+    const attendanceData =
+        JSON.parse(localStorage.getItem('attendanceData')) || [];
 
+    const cleanedAttendanceData = attendanceData.filter(
+        record => record.class !== selectedClass
+    );
+
+    localStorage.setItem(
+        'attendanceData',
+        JSON.stringify(cleanedAttendanceData)
+    );
+
+    // delete selectedClass colors
+    const colors =
+        JSON.parse(localStorage.getItem('colors')) || {};
+
+    if (colors[selectedClass]) {
+        delete colors[selectedClass];
+        localStorage.setItem(
+            'colors',
+            JSON.stringify(colors)
+        );
+    }
     // delete selectedClass attendance rate history
     const newatt = JSON.parse
             (localStorage.getItem('attHis'));
