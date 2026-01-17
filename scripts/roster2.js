@@ -671,8 +671,9 @@ function showStudentsList() {
         if (savedColor) {
             listItem.style.backgroundColor = savedColor;
         }
-    });
 */
+    });
+
     // 🔹 Keep your existing logic untouched
     const resultSection =
         document.getElementById('resultSection');
