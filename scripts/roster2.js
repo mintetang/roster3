@@ -679,12 +679,13 @@ function showStudentsList() {
         document.getElementById('resultSection');
     const isAttendanceSubmitted =
         resultSection.style.display === 'block';
-
-    if (isAttendanceSubmitted) {
-        showAttendanceResult(selectedClass);
-    } else {
+//modify 0119 to show all always
+    //if (isAttendanceSubmitted) {
+    //    showAttendanceResult(selectedClass);
+    //} else {
         showSummary(selectedClass);
-    }
+        showAttendanceResult(selectedClass);
+    //}
 }
 
 
