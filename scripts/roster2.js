@@ -131,18 +131,13 @@ function readOrg() {
 }
 
 async function handleSubmit() {
-  // 1️⃣ must read from Drive first
-  const driveOK = await googleIn();
-  if (!driveOK) return; // ⛔ stop everything
+    const success = addClass();
 
-  // 2️⃣ addClass
-  const success = addClass();
-  if (!success) return; // ⛔ stop before addOrg
+    // ⛔ stop immediately if addClass failed
+    if (!success) return;
 
-  // 3️⃣ addOrg
-  await addOrg();
+    await addOrg();
 }
-
 
 
 async function addOrg() {
@@ -1188,10 +1183,11 @@ async function uploadToDrive() {
 
 async function googleIn() {
   const accessToken = gapi.client.getToken()?.access_token;
+  console.log(accessToken);
 
   if (!accessToken) {
     alert("❌ 尚未取得授權，請先登入認證");
-    return false;
+    return;
   }
 
   if (typeof fileId === "undefined") {
@@ -1212,6 +1208,7 @@ async function googleIn() {
       throw new Error(`HTTP ${response.status}`);
     }
 
+    // SAFER for Drive files
     const text = await response.text();
     const fileContent = JSON.parse(text);
 
@@ -1220,13 +1217,12 @@ async function googleIn() {
       localStorage.setItem(key, fileContent[key]);
     }
 
-    alert("✅ 成功讀回紀錄!");
-    return true;   // ⭐ IMPORTANT
+    alert("成功讀回紀錄!");
+    setTimeout(() => location.reload(), 300);
 
   } catch (error) {
     console.error("Failed to read file:", error);
     alert("❌ 讀取失敗，請確認登入認證？");
-    return false;  // ⭐ IMPORTANT
   }
 }
 
