@@ -1051,11 +1051,88 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// for Google Output to drive
-
 
 // ===== Google config =====
 const CLIENT_ID =
+  "273160542369-ttt03gmv0iio70vek53dqrqcfs9rt1a6.apps.googleusercontent.com";
+
+const API_KEY =
+  "AIzaSyDZkfoh01VUEwX_uK3xn3jVvMLssdPCqoo";
+
+const SCOPES = "https://www.googleapis.com/auth/drive.file";
+const DISCOVERY_DOC =
+  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
+
+// ===== State =====
+let tokenClient;
+let gapiInited = false;
+let gisInited = false;
+
+initGoogleDriveAuth();
+
+function initGoogleDriveAuth() {
+  if (!window.gapi || !window.google?.accounts) {
+    setTimeout(initGoogleDriveAuth, 100);
+    return;
+  }
+
+  const authBtn = document.getElementById("authorize_button");
+  authBtn.onclick = handleAuthClick;
+
+  // Initialize Google API
+  gapi.load("client", async () => {
+    await gapi.client.init({
+      apiKey: API_KEY,
+      discoveryDocs: [DISCOVERY_DOC],
+    });
+
+    gapiInited = true;
+    restoreToken(); // try restoring token
+    maybeEnableButtons();
+  });
+
+  // Initialize OAuth client
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (resp) => {
+      if (resp.error) {
+        console.error(resp);
+        return;
+      }
+
+      gapi.client.setToken(resp);
+
+      // save token so refresh doesn't require auth
+      localStorage.setItem("gdrive_token", JSON.stringify(resp));
+    },
+  });
+
+  gisInited = true;
+  maybeEnableButtons();
+}
+
+function maybeEnableButtons() {
+  if (gapiInited && gisInited) {
+    document.getElementById("authorize_button").disabled = false;
+  }
+}
+
+function handleAuthClick() {
+  // Try silent auth first
+  tokenClient.requestAccessToken({ prompt: "" });
+}
+
+// Restore token from storage
+function restoreToken() {
+  const saved = localStorage.getItem("gdrive_token");
+
+  if (saved) {
+    const token = JSON.parse(saved);
+    gapi.client.setToken(token);
+  }
+}
+/*const CLIENT_ID =
   "273160542369-ttt03gmv0iio70vek53dqrqcfs9rt1a6.apps.googleusercontent.com";
 
 const API_KEY =
@@ -1104,23 +1181,7 @@ document.getElementById("authorize_button")
   .addEventListener("click", function () {
     this.classList.toggle("clicked");
   });
-//make button dimmed or blink after clicked
-/*document
-  .getElementById("authorize_button")
-  .addEventListener("click", function () {
-    this.classList.add("dimmed");
-  });
-document.getElementById("upload_button").addEventListener("click", function () {
-  this.classList.add("blink");
-});
 
-document.getElementById("googleIn").addEventListener("click", function () {
-  this.classList.add("blink");
-});
-
-document.getElementById("update_button").addEventListener("click", function () {
-  this.classList.add("blink");
-});*/
 
 function maybeEnableButtons() {
   if (gapiInited && gisInited) {
@@ -1137,6 +1198,7 @@ function handleAuthClick() {
     tokenClient.requestAccessToken({ prompt: "" });
     }, { once: true });
 
+*/
 // Fallback button
 document.getElementById("authorize_button").onclick = handleAuthClick;
 
@@ -1276,3 +1338,21 @@ async function overwriteFile() {
     alert("❌ 更新失敗，請確認登入認證？");
   }
 }
+
+//make button dimmed or blink after clicked
+/*document
+  .getElementById("authorize_button")
+  .addEventListener("click", function () {
+    this.classList.add("dimmed");
+  });
+document.getElementById("upload_button").addEventListener("click", function () {
+  this.classList.add("blink");
+});
+
+document.getElementById("googleIn").addEventListener("click", function () {
+  this.classList.add("blink");
+});
+
+document.getElementById("update_button").addEventListener("click", function () {
+  this.classList.add("blink");
+});*/
