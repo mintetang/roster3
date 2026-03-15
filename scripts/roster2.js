@@ -130,7 +130,7 @@ function readOrg() {
     closePopup();
 }
 
-/* async function handleSubmit() {
+async function handleSubmit() {
     const success = addClass();
 
     // ⛔ stop immediately if addClass failed
@@ -138,19 +138,7 @@ function readOrg() {
 
     await addOrg();
 }
-*/
-async function handleSubmit() {
-  // 1️⃣ must read from Drive first
-  const driveOK = await googleIn();
-  if (!driveOK) return; // ⛔ stop everything
 
-  // 2️⃣ addClass
-  const success = addClass();
-  if (!success) return; // ⛔ stop before addOrg
-
-  // 3️⃣ addOrg
-  await addOrg();
-}
 
 async function addOrg() {
     const requestURL =
