@@ -1059,33 +1059,56 @@ const CLIENT_ID =
 const API_KEY =
   "AIzaSyDZkfoh01VUEwX_uK3xn3jVvMLssdPCqoo";
 
-const DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
-const SCOPES = "https://www.googleapis.com/auth/drive.file";
+const DISCOVERY_DOC =
+  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
+
+const SCOPES =
+  "https://www.googleapis.com/auth/drive.file";
+
 
 // ===== Globals =====
 let tokenClient;
 let gapiReady = false;
+let googleInitPromise = null;
 
-// ===== Initialize =====
-async function initGoogle() {
 
-  await new Promise(resolve => gapi.load("client", resolve));
+// ===== Lazy Google Initialization =====
+async function ensureGoogleInit() {
 
-  await gapi.client.init({
-    apiKey: API_KEY,
-    discoveryDocs: [DISCOVERY_DOC],
-  });
+  if (gapiReady) return;
 
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: handleTokenResponse,
-  });
+  if (!googleInitPromise) {
 
-  gapiReady = true;
+    googleInitPromise = (async () => {
 
-  restoreToken();
+      await new Promise(resolve =>
+        gapi.load("client", resolve)
+      );
+
+      await gapi.client.init({
+        apiKey: API_KEY,
+        discoveryDocs: [DISCOVERY_DOC],
+      });
+
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: handleTokenResponse,
+      });
+
+      restoreToken();
+
+      gapiReady = true;
+
+      console.log("Google API initialized");
+
+    })();
+
+  }
+
+  return googleInitPromise;
 }
+
 
 // ===== Token Handler =====
 function handleTokenResponse(resp) {
@@ -1097,11 +1120,15 @@ function handleTokenResponse(resp) {
 
   gapi.client.setToken(resp);
 
-  // persist token for refresh
-  localStorage.setItem("gdrive_token", JSON.stringify(resp));
+  // save token so refresh keeps login
+  localStorage.setItem(
+    "gdrive_token",
+    JSON.stringify(resp)
+  );
 
   console.log("Google Drive Authorized");
 }
+
 
 // ===== Restore Token After Refresh =====
 function restoreToken() {
@@ -1112,40 +1139,50 @@ function restoreToken() {
     const token = JSON.parse(saved);
     gapi.client.setToken(token);
   }
+
 }
+
 
 // ===== Login Button =====
-function authorizeDrive() {
+async function authorizeDrive() {
+
+  await ensureGoogleInit();
 
   if (!gapi.client.getToken()) {
-    tokenClient.requestAccessToken({ prompt: "consent" });
+
+    tokenClient.requestAccessToken({
+      prompt: "consent"
+    });
+
   }
+
 }
+
 
 // ===== Silent Auth =====
-function silentAuth() {
+async function silentAuth() {
+
+  await ensureGoogleInit();
 
   if (!gapi.client.getToken()) {
-    tokenClient.requestAccessToken({ prompt: "consent" });
+
+    tokenClient.requestAccessToken({
+      prompt: ""
+    });
+
   }
+
 }
 
-// ===== Page Init =====
-window.onload = async () => {
 
-  await initGoogle();
+// ===== Page Init (NO Google Auth) =====
+window.addEventListener("DOMContentLoaded", () => {
 
   document
     .getElementById("authorize_button")
     .addEventListener("click", authorizeDrive);
 
-  // attempt silent auth once user interacts
-  document.addEventListener(
-    "click",
-    () => silentAuth(),
-    { once: true }
-  );
-};
+});
 
 //declaire fileId to set in upload and use in googleIn
 
@@ -1187,23 +1224,52 @@ async function uploadToDrive() {
   return;
 }
 
+async function ensureGoogleAuth() {
+
+  let token = gapi.client.getToken();
+
+  if (!token) {
+    return new Promise((resolve, reject) => {
+
+      tokenClient.callback = (resp) => {
+
+        if (resp.error) {
+          reject(resp);
+          return;
+        }
+
+        gapi.client.setToken(resp);
+        localStorage.setItem("gdrive_token", JSON.stringify(resp));
+
+        resolve(resp.access_token);
+      };
+
+      // silent attempt first
+      tokenClient.requestAccessToken({ prompt: "consent" });
+    });
+  }
+
+  return token.access_token;
+}
 
 async function googleIn() {
-  const accessToken = gapi.client.getToken()?.access_token;
-  console.log(accessToken);
-
-  if (!accessToken) {
-    alert("❌ 尚未取得授權，請先登入認證");
-    return;
-  }
-
-  if (typeof fileId === "undefined") {
-    fileId = document.getElementById("pfileId").innerText;
-  }
-
-  const fetchUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
 
   try {
+
+    const accessToken = await ensureGoogleAuth();
+
+    if (!accessToken) {
+      alert("❌ Google Drive 未登入");
+      return;
+    }
+
+    if (typeof fileId === "undefined") {
+      fileId = document.getElementById("pfileId").innerText;
+    }
+
+    const fetchUrl =
+      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+
     const response = await fetch(fetchUrl, {
       method: "GET",
       headers: {
@@ -1215,21 +1281,25 @@ async function googleIn() {
       throw new Error(`HTTP ${response.status}`);
     }
 
-    // SAFER for Drive files
-    const text = await response.text();
-    const fileContent = JSON.parse(text);
+    const fileContent = await response.json();
 
+    // clear old data
     localStorage.clear();
+
+    // restore data
     for (const key in fileContent) {
       localStorage.setItem(key, fileContent[key]);
     }
 
-    alert("成功讀回紀錄!");
+    alert("✅ 成功從 Google Drive 同步資料");
+
     setTimeout(() => location.reload(), 300);
 
   } catch (error) {
-    console.error("Failed to read file:", error);
-    alert("❌ 讀取失敗，請確認登入認證？");
+
+    console.error("Drive Sync Failed:", error);
+
+    alert("❌ 同步失敗，請重新登入 Google");
   }
 }
 
