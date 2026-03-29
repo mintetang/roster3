@@ -1311,6 +1311,56 @@ async function googleIn() {
   }
 }
 
+async function googleInApp() {
+
+  try {
+
+    const accessToken = await ensureGoogleAuth();
+
+    if (!accessToken) {
+      alert("❌ Google Drive 未登入");
+      return;
+    }
+
+    if (typeof fileId === "undefined") {
+      fileId = document.getElementById("pfileId").innerText;
+    }
+
+    const fetchUrl =
+      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+
+    const response = await fetch(fetchUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const fileContent = await response.json();
+
+    // clear old data - appended to prevent data duplication, but can cause issue if file is missing key or corrupted, consider to clear only known keys in the future
+    //localStorage.clear();
+
+    // restore data
+    for (const key in fileContent) {
+      localStorage.setItem(key, fileContent[key]);
+    }
+
+    alert("✅ 成功從 Google Drive append資料");
+
+    setTimeout(() => location.reload(), 300);
+
+  } catch (error) {
+
+    console.error("Drive Sync Failed:", error);
+
+    alert("❌ 同步失敗，請重新登入 Google");
+  }
+}
 
 // Assuming you have authenticated and obtained an access token
 // and the gapi client library is loaded.
