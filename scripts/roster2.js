@@ -1,31 +1,78 @@
 //roster2.js
 document.addEventListener("DOMContentLoaded", () => {
-    const classSelector =
-        document.getElementById('classSelector');
+    const token = sessionStorage.getItem("access_token");
+    const data = sessionStorage.getItem("googleData");
 
-    // ✅ Step 1: Always save on change
-    classSelector.addEventListener('change', () => {
-        localStorage.setItem(
-            'selectedClass',
-            classSelector.value
-        );
+    // 🔐 Guard: must come from cover.html
+    if (!token || !data) {
+        console.warn("No auth/data → redirect");
+        window.location.href = "cover.html";
+        return;
+    }
 
-        // Optional: update students immediately
-        showStudentsList();
-    });
-    //clear localstorage when login
-   /* const hasInitialized = sessionStorage.getItem("sessionInitialized");
-            if (!hasInitialized) {
-            // First load in this browser tab/session
-            localStorage.clear();
+    let parsed;
 
-            sessionStorage.setItem("sessionInitialized", "true");
-        }*/
-    
-    populateClasses();
-    showStudentsList();
+    try {
+        parsed = JSON.parse(data);
+    } catch (e) {
+        console.error("Invalid Google data", e);
+        sessionStorage.clear();
+        window.location.href = "cover.html";
+        return;
+    }
+
+    // ✅ Setup DOM listeners FIRST
+    const classSelector = document.getElementById('classSelector');
+
+    if (classSelector) {
+        classSelector.addEventListener('change', () => {
+            localStorage.setItem('selectedClass', classSelector.value);
+            showStudentsList();
+        });
+    }
+
+    // ✅ Restore app state (this handles UI init)
+    restoreFromGoogle(parsed);
+
+    // ✅ Optional: prevent stale reuse
+    sessionStorage.removeItem("googleData");
 });
 
+function restoreFromGoogle(data) {
+  try {
+    if (!data || typeof data !== "object") {
+      throw new Error("Invalid data");
+    }
+
+    console.log("Restoring from Google:", data);
+
+    // ✅ Clear old data
+    localStorage.clear();
+
+    // ✅ Restore all keys
+    for (const key in data) {
+      localStorage.setItem(key, data[key]);
+    }
+
+    // ✅ Prevent double initialization
+    window.__DATA_RESTORED__ = true;
+
+    // ✅ Initialize UI (only once)
+    populateClasses();
+    showStudentsList();
+
+    console.log("✅ Google data restored successfully");
+
+  } catch (error) {
+    console.error("Restore failed:", error);
+
+    alert("❌ 資料載入失敗，請重新登入");
+
+    // fallback → force re-login
+    sessionStorage.clear();
+    window.location.href = "cover.html";
+  }
+}
 
 function showAddStudentOrgForm() {
     document.getElementById('addStudentOrgPopup').
@@ -1183,15 +1230,6 @@ async function silentAuth() {
 }
 
 
-// ===== Page Init (NO Google Auth) =====
-window.addEventListener("DOMContentLoaded", () => {
-
-  document
-    .getElementById("authorize_button")
-    .addEventListener("click", authorizeDrive);
-
-});
-
 //declaire fileId to set in upload and use in googleIn
 
 async function uploadToDrive() {
@@ -1316,13 +1354,15 @@ async function googleIn() {
 
 async function overwriteFile() {
   try {
-    const accessToken = gapi.client.getToken()?.access_token;
+    // ✅ Use token from sessionStorage (set by cover.html)
+    const accessToken = sessionStorage.getItem("access_token");
     if (!accessToken) {
-      alert("❌ 尚未登入 Google, 請先認證");
+      alert("❌ 尚未登入 Google，請先在封面頁面完成認證");
+      window.location.href = "cover.html";
       return;
     }
 
-    // Collect localStorage
+    // ✅ Collect all localStorage data
     const localStorageData = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -1332,8 +1372,7 @@ async function overwriteFile() {
     const jsonString = JSON.stringify(localStorageData, null, 2);
     const fileId = document.getElementById("pfileId").innerText.trim();
 
-    const url =
-      `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`;
+    const url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`;
 
     const response = await fetch(url, {
       method: "PATCH",
@@ -1349,7 +1388,7 @@ async function overwriteFile() {
       throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
 
-    // Google Drive may return EMPTY BODY — don't force JSON
+    // ✅ Google Drive may return empty body — just log it
     const resultText = await response.text();
     console.log("Drive response:", resultText || "(empty)");
 
@@ -1357,58 +1396,43 @@ async function overwriteFile() {
 
   } catch (err) {
     console.error("Update failed:", err);
-    alert("❌ 更新失敗，請確認登入認證？");
+    alert("❌ 更新失敗，請確認封面頁面已完成 Google 認證");
   }
 }
 
 async function logoutDrive() {
-
   try {
+    // ✅ Get token from sessionStorage
+    const accessToken = sessionStorage.getItem("access_token");
 
-    // initialize Google if not ready
-    await ensureGoogleInit();
+    if (accessToken) {
+      // 🔹 Revoke the token via Google OAuth2 endpoint
+      await fetch(`https://oauth2.googleapis.com/revoke?token=${accessToken}`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded"
+        }
+      });
 
-    const token = gapi.client?.getToken();
+      console.log("Google Drive token revoked");
 
-    if (token) {
+      // ✅ Clear session and local storage related to Google
+      sessionStorage.removeItem("access_token");
+      sessionStorage.removeItem("googleData");
+      localStorage.clear();
 
-      google.accounts.oauth2.revoke(token.access_token);
+      alert("✅ 已登出 Google Drive");
 
-      gapi.client.setToken(null);
-
-      localStorage.removeItem("gdrive_token");
-
-      console.log("Google Drive logged out");
-
-      alert("已登出 Google Drive");
+      // Optional: redirect back to cover page
+      window.location.href = "cover.html";
 
     } else {
-
-      console.log("No active Google session");
-
+      console.log("No active Google session found");
+      alert("⚠️ 尚未登入 Google Drive");
     }
 
   } catch (err) {
-
     console.error("Logout failed:", err);
-
+    alert("❌ 登出失敗，請稍後再試");
   }
-
 }
-//make button dimmed or blink after clicked
-/*document
-  .getElementById("authorize_button")
-  .addEventListener("click", function () {
-    this.classList.add("dimmed");
-  });
-document.getElementById("upload_button").addEventListener("click", function () {
-  this.classList.add("blink");
-});
-
-document.getElementById("googleIn").addEventListener("click", function () {
-  this.classList.add("blink");
-});
-
-document.getElementById("update_button").addEventListener("click", function () {
-  this.classList.add("blink");
-});*/
