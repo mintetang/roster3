@@ -8,10 +8,7 @@
 
     <link rel="stylesheet" href="styles/roster2.css">
 
-    <!-- ❌ REMOVED Google Auth scripts -->
-    <!-- <script src="https://accounts.google.com/gsi/client"></script> -->
-    <!-- <script src="https://apis.google.com/js/api.js"></script> -->
-
+    <!-- Google scripts removed, handled in cover.html -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script type="module" crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -25,16 +22,15 @@
         </div>
         <div class="navbar-links">
             <p>
-                2026年 
-                <span id="academicYear"></span>
+                2026年 <span id="academicYear"></span>
             </p>
         </div>
     </div>
 
     <div class="container">
 
+        <!-- Google / Data Controls -->
         <div>
-            <!-- ✅ SIMPLIFIED GOOGLE UI -->
             <label id="googleNote">
                 已從 Google 載入資料<br>
                 如需更新請點「儲存Google」
@@ -46,21 +42,18 @@
             <button id="clean" onclick="cleanSelectedClass()">刪除出席記錄</button>
         </div>
 
+        <!-- Main Form Section -->
         <div id="formSection">
 
             <div id="formTitle">
-                <h4>1開始</h4>
-
+                <h4>1 開始</h4>
                 <button class="refresh" onclick="location.reload()">刷新頁面</button>
-
                 <button id="addClassButton" onclick="showAddClassForm()">📅 加入堂次</button>
 
-                <h4>2名單</h4>
-
+                <h4>2 名單</h4>
                 <button id="addStudentButton" onclick="showAddStudentForm()">👤 加入新朋友</button>
 
-                <h4>3統計</h4>
-
+                <h4>3 統計</h4>
                 <button id="submitAtt1" onclick="submitAttendance();histRate()">📊 送出統計</button>
 
                 <label for="classSelector">日期和堂次記錄:</label>
@@ -75,8 +68,10 @@
                 <a href="#resultSection" class="skip-link">快捷下↓⬇️</a>
             </div>
 
+            <!-- Students List -->
             <ul id="studentsList"></ul>
 
+            <!-- Summary Section -->
             <div id="summarySection">
                 <h3>出席總計</h3>
                 <p>全部人數: <span id="totalStudents">0</span></p>
@@ -84,6 +79,7 @@
                 <p>第2堂出席人數: <span id="totalPresent2">0</span></p>
             </div>
 
+            <!-- Result Section -->
             <div id="resultSection">
                 <h3>統計結果</h3>
                 <p>執行日期時間: <span id="attendanceDate"></span> <span id="attendanceTime"></span></p>
@@ -94,20 +90,18 @@
                 <p>第1堂出席率: <span id="attendanceRate1"></span></p>
                 <p>第2堂出席率: <span id="attendanceRate2"></span></p>
                 <p>總出席率: <span id="attendanceRate"></span></p>
-
                 <button onclick="histRate()">統計圖</button>
             </div>
         </div>
 
+        <!-- Historical Chart -->
         <div id="hisSection">
             <h3>出席率統計圖</h3>
             <p><span id="attP"></span></p>
             <canvas id="myChart"></canvas>
         </div>
 
-        <!-- ✅ KEEP ALL YOUR POPUPS (UNCHANGED) -->
-        <!-- (I left them untouched to avoid breaking your logic) -->
-
+        <!-- Local Storage Buttons -->
         <div>
             <button id="exlocal" onclick="exportLocalStorage()">暫存紀錄</button>
             <button id="inlocal" onclick="showreadForm()">讀回暫存紀錄</button>
@@ -115,31 +109,39 @@
 
     </div>
 
+    <!-- Hidden Google File ID -->
     <p id="pfileId">1Hpp1mb0gL_5kUUR09j6v7HVLXfyK90Sw</p>
 
-    <!-- ✅ NEW: Session Guard BEFORE your script -->
+    <!-- Session Guard & Restore -->
     <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const token = sessionStorage.getItem("access_token");
-        const data = sessionStorage.getItem("googleData");
+        document.addEventListener("DOMContentLoaded", () => {
+            const token = sessionStorage.getItem("access_token");
+            const data = sessionStorage.getItem("googleData");
 
-        if (!token || !data) {
-            console.warn("No auth/data → redirect to cover");
-            window.location.href = "cover.html";
-            return;
-        }
+            if (!token || !data) {
+                console.warn("No auth/data → redirect to cover.html");
+                window.location.href = "cover.html";
+                return;
+            }
 
-        try {
-            const parsed = JSON.parse(data);
-            window.__GOOGLE_DATA__ = parsed; // pass to roster2.js
-        } catch (e) {
-            console.error("Invalid stored data", e);
-            sessionStorage.clear();
-            window.location.href = "cover.html";
-        }
-    });
+            try {
+                const parsed = JSON.parse(data);
+
+                // ✅ Restore app state immediately
+                restoreFromGoogle(parsed);
+
+                // Optional: remove sessionData to prevent stale reload
+                sessionStorage.removeItem("googleData");
+
+            } catch (e) {
+                console.error("Invalid stored data", e);
+                sessionStorage.clear();
+                window.location.href = "cover.html";
+            }
+        });
     </script>
 
+    <!-- Main JS -->
     <script src="scripts/roster2.js"></script>
 
 </body>
